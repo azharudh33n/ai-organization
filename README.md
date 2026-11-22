@@ -97,7 +97,7 @@ Every action is pinned to a commit SHA, tokens are read-only, and Dependabot pro
 
 ## Credits
 
-Built on ideas from Andrej Karpathy (coding guidelines, autoresearch, the training recipe), [`obra/superpowers`](https://github.com/obra/superpowers), [`anthropics/skills`](https://github.com/anthropics/skills) and the community skill this repo evolved from.
+Built on ideas from Andrej Karpathy (coding guidelines, autoresearch, the training recipe), [`obra/superpowers`](https://github.com/obra/superpowers), [`anthropics/skills`](https://github.com/anthropics/skills). v1 evolves the author's original single-file ai-organization skill (v0).
 
 ## License
 

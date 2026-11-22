@@ -2,7 +2,7 @@
 
 ## 1.0.0 (2026-11-22)
 
-First public release, evolved from the original single-file community skill (v0). Measured against v0 on the eval suite in `evals/`; numbers are in `docs/evolution/benchmark.md`.
+First public release, evolved from the author's original single-file skill (v0). Measured against v0 on the eval suite in `evals/`; numbers are in `docs/evolution/benchmark.md`.
 
 ### Added
 
