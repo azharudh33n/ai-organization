@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 (2026-11-22)
+
+- **The skill is opt-in.** The description now says to use it only when the user names it or asks for a project to be run or staffed as a company, an organization or a team of AI agents, and not for ordinary build, fix, plan, research or review requests.
+- **CI/CD playbook split into two levels.** A baseline for every project (required checks, pinned actions, read-only tokens, secret scanning, a tried rollback) and an advanced level for projects with personal data, real money at risk, many teams or published artifacts (merge queues, OIDC, attestations, staging, canary releases, DORA metrics). The brief says which level applies and why.
+- **Vetting gate: stricter reading of a skill's declared name.** A third security review pointed out that the gate's reading of `SKILL.md` frontmatter was looser than a real YAML parser. It now accepts one unambiguous spelling of `name:` and treats anything else (comments, anchors, tags, escapes, indented or repeated keys, a byte-order mark) as "this file might be the skill", which blocks approval. `skill.md` in any letter case counts as a skill file.
+
+Trigger check: a proxy test with 14 requests (6 that ask for the organization approach, 8 ordinary ones) gave 14 of 14 for the new description. The old description also scored 14 of 14 on the same proxy, so the test shows the new wording keeps every wanted trigger but does not show that the old one over-triggered. The real trigger harness could not run because the `claude` CLI on the test machine was not logged in.
+
 ## 1.1.2 (2026-11-22)
 
 Three more fixes to the vetting gate from a second automated security review.

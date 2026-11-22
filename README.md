@@ -25,11 +25,9 @@ Asking one AI agent to "build the whole thing" tends to produce unverified work,
 - **Right-sized teams.** A README fix stays a one-person job. A regulated web app gets architects, engineers, DevOps, security and QA. The skill picks a Solo, Squad or Company tier before it hires anyone.
 - **Separation of duties.** Whoever builds something never grades it. Benchmarks, acceptance tests, code review and fact-checking always go to a different agent.
 - **Karpathy's operating system.** Think before acting, simplicity first, surgical changes, and goal-driven execution with checks that pass or fail. The Karpathy Loop handles any numeric goal.
-- **Production-grade CI/CD from day one.**
-  - Trunk-based flow, required checks and merge queues.
-  - Actions pinned to commit SHAs, least-privilege tokens and OIDC.
-  - SLSA provenance and SBOM attestations.
-  - Preview environments and canary releases with automatic rollback.
+- **CI/CD sized to the project.**
+  - Baseline for every project: trunk-based flow, required checks, pinned actions, read-only tokens, secret scanning and a tried rollback.
+  - Advanced when the stakes call for it (personal data, real money, many teams, published artifacts): merge queues, OIDC, provenance and SBOM attestations, staging, canary releases with automatic rollback, and DORA metrics.
 - **Independent QA.** A fresh agent that never saw the build checks every Definition of Done item and records evidence.
 - **Token-efficient.** The core skill loads about 2k tokens. Department playbooks load only when that department is staffed.
 
@@ -66,7 +64,7 @@ Ask me only if a wrong guess would be expensive. Otherwise decide, note
 your assumption, and keep going. Update me at each phase.
 ```
 
-You can also just describe the project. The skill triggers on requests like "build an AI team for this", "run this like a company" or "plan and deliver this end to end".
+The skill is opt-in. It runs when you name it, or when you ask Claude to run or staff the project as a company, an organization or a team of AI agents. An ordinary "build me an app" does not trigger it, so it never adds ceremony you didn't ask for.
 
 ## How it works
 
@@ -88,7 +86,7 @@ You can also just describe the project. The skill triggers on requests like "bui
 | [`talent-sourcing.md`](skills/ai-organization/references/talent-sourcing.md) | A role needs a skill: roster, skills.sh search, vetting gate, pinned install |
 | [`scripts/vet_skill.py`](skills/ai-organization/scripts/vet_skill.py) | Run before installing any third-party skill |
 | [`playbook-engineering.md`](skills/ai-organization/references/playbook-engineering.md) | Engineers are hired |
-| [`cicd.md`](skills/ai-organization/references/cicd.md) | Any software deliverable: pipeline, supply chain, deployment, DORA metrics |
+| [`cicd.md`](skills/ai-organization/references/cicd.md) | Any software deliverable: a baseline for every project, an advanced level for higher stakes |
 | [`playbook-research.md`](skills/ai-organization/references/playbook-research.md) | Research or benchmarking |
 | [`playbook-creative.md`](skills/ai-organization/references/playbook-creative.md) | Video, design or UI work |
 | [`karpathy-loop.md`](skills/ai-organization/references/karpathy-loop.md) | A DoD item is a number, or Data/ML hires |

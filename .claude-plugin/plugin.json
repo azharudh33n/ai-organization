@@ -1,6 +1,6 @@
 {
   "name": "ai-organization",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Claude runs your project like a top company: it sizes the job, hires only the subagents it needs, vets their skills, applies Karpathy's methods, gates software on modern CI/CD, and ships only after independent QA.",
   "author": {
     "name": "azharudh33n",

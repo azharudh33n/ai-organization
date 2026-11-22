@@ -1,6 +1,6 @@
 ---
 name: ai-organization
-description: Runs a project the way a top company would. Claude acts as CEO, sizes the job, hires only the specialist subagents it needs, gives each one vetted skills and a tight brief, applies Karpathy's methods (assumptions first, simplest diff, verifiable goals, metric loops), gates software on a modern CI/CD pipeline, and ships only after independent QA. Use it when the user asks Claude to "run this like a company", "build an AI team or org", plan or deliver a multi-role project end to end (app, research report, video, launch), or coordinate several agents with quality gates, even if they never say "organization".
+description: Opt-in way of running a project as an AI organization. Claude acts as CEO, sizes the job, hires only the specialist subagents it needs with vetted skills and tight briefs, applies Karpathy's methods, gates software on CI/CD, and ships only after independent QA. Use only when the user asks for this way of working: they name ai-organization, or they ask Claude to run or staff the project as a company, an organization or a team of AI agents with roles and quality gates. Do not use for ordinary requests to build, fix, plan, research or review something, however large, unless the user asks for the organization approach.
 ---
 
 # AI Organization

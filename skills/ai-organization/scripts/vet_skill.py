@@ -50,6 +50,9 @@ MAX_SKILL_FILES = 60  # more SKILL.md files than this: don't try to tell them ap
 MAX_TEXT_BYTES = 65536
 LINK_MODES = {"120000", "160000"}  # symlink, submodule: content that lives elsewhere
 WHOLE_REPO = ""
+FRONTMATTER_RE = re.compile(r"\A---[ \t]*\n(.*?)\n---[ \t]*(?:\n|\Z)", re.S)
+NAME_KEY_RE = re.compile(r"""^\s*["']?name["']?\s*:""", re.I)
+PLAIN_NAME_RE = re.compile(r"""^name:[ \t]+(["']?)([A-Za-z0-9][A-Za-z0-9._-]*)\1[ \t]*$""")
 
 FetchJson = Callable[[str], object]
 FetchText = Callable[[str], "str | None"]
@@ -91,14 +94,33 @@ def parse_time(value: object) -> datetime | None:
 
 
 def frontmatter_name(text: str | None) -> str | None:
-    """The skill's declared name, or None unless the frontmatter states exactly one plain `name:`."""
-    if not text or not text.startswith("---"):
+    """The skill's declared name, only when no YAML parser could read it differently.
+
+    This is not a YAML parser, and the installer uses a real one. So it accepts a single
+    spelling: one top-level `name:` line whose value is a plain token of letters, digits,
+    dot, dash and underscore, optionally in matching quotes. Comments, anchors, tags,
+    escapes, multi-line values, merge keys, flow mappings, indented or repeated name keys
+    and a byte-order mark all return None, which callers treat as "this file might be
+    the skill".
+    """
+    if not text:
         return None
-    end = text.find("\n---", 3)
-    if end == -1:
+    match = FRONTMATTER_RE.match(text.replace("\r\n", "\n").replace("\r", "\n"))
+    if not match:
         return None
-    names = re.findall(r"^name:[ \t]*(\S.*?)[ \t]*$", text[3:end], re.M)
-    return names[0].strip("'\"") if len(names) == 1 else None
+    lines = match.group(1).split("\n")
+    if any(line.lstrip().startswith(("<<", "{", "%")) for line in lines):
+        return None
+    name_lines = [line for line in lines if NAME_KEY_RE.match(line)]
+    if len(name_lines) != 1:
+        return None
+    plain = PLAIN_NAME_RE.match(name_lines[0])
+    return plain.group(2) if plain else None
+
+
+def is_skill_file(path: str) -> bool:
+    """SKILL.md in any letter case: some filesystems would open `skill.md` for it."""
+    return path.rsplit("/", 1)[-1].lower() == "skill.md"
 
 
 def resolve_skill_dir(skill_files: dict[str, str | None], skill: str) -> str | None:
@@ -191,7 +213,7 @@ def vet(owner: str, repo: str, skill: str, fetch: FetchJson, fetch_text: FetchTe
     if head_index is None:
         return "rejected", ["could not list the repository's files, so nothing can be verified"], None, None
 
-    skill_paths = [path for path in head_index if path == "SKILL.md" or path.endswith("/SKILL.md")]
+    skill_paths = [path for path in head_index if is_skill_file(path)]
     folder = None
     if 0 < len(skill_paths) <= MAX_SKILL_FILES:
         texts = {path: fetch_text(f"{RAW}/{owner}/{repo}/{head}/{urllib.parse.quote(path)}") for path in skill_paths}
