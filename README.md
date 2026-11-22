@@ -100,13 +100,13 @@ A cloud or CI session starts with nothing but your repo, so the skills a team ne
 
 1. **Roster first.** Skills already committed under `.claude/skills/` (tracked in `skills-lock.json`) are used as they are.
 2. **Search.** `npx skills find "<stack or task>"` on skills.sh.
-3. **Vetting gate.** `vet_skill.py` reads the independent security audits skills.sh publishes (Snyk, Socket, Gen Agent Trust Hub and others) and checks that the publisher is a verified GitHub organization. An audit only counts if the skill's files have not changed since it ran, checked against GitHub's push log. The verdict comes from those outside facts, not from the model's reading of the skill.
+3. **Vetting gate.** `vet_skill.py` reads the independent security audits skills.sh publishes (Snyk, Socket, Gen Agent Trust Hub and others) and checks that the publisher is a verified GitHub organization. An audit only counts if the skill's folder has the same git content hash as when the audit ran, and the gate works out which folder the installer will actually take. The verdict comes from those outside facts, not from the model's reading of the skill.
 4. **Pinned install.** Approved skills are installed at the exact commit the gate vetted, with a content hash in `skills-lock.json`, and committed so every later session has them.
 
 | Gate verdict | When | With you there | Unattended |
 |---|---|---|---|
 | `approved` | At least two current audits, all passing at low risk, verified publisher | Installs | Installs |
-| `ask` | An audit warns, an earlier version failed, only one audit is current, or the publisher is unverified | Asks you | Logs a proposal and carries on without it |
+| `ask` | An audit warns, an earlier version failed, only one audit is current, the publisher is unverified, or the skill's folder is ambiguous | Asks you | Logs a proposal and carries on without it |
 | `rejected` | A current audit fails or reports high risk, or no audit covers the current version | Never installs | Never installs |
 
 Popularity is not safety. When this gate was built, the top skills.sh result for "playwright testing" had thousands of installs and a failing Snyk audit, and the gate rejected it.

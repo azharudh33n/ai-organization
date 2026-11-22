@@ -7,20 +7,20 @@ It decides from outside facts, so the decision does not rest on a model's readin
 of the skill's own text:
   1. the independent security audits skills.sh publishes for the skill
   2. whether those audits still describe the skill: an audit counts only if the
-     skill's files have not changed between the commit that was current when the
-     audit ran and the commit being vetted (GitHub's push log and diff)
+     skill's folder has the same git content hash at the commit that was current
+     when the audit ran and at the commit being vetted
   3. whether the publisher is a GitHub organization with a verified domain
 
 Verdict (also the exit code):
   approved (0)  at least two current audits, all passing at low risk or below,
-                and a verified publisher
+                a verified publisher, and exactly one folder that can be this skill
   ask      (2)  an audit warns, only one audit is current, an earlier version
-                failed an audit, or the publisher is unverified: a person must
-                approve before the skill is installed
+                failed an audit, the publisher is unverified, or the skill's
+                folder is ambiguous: a person must approve before it is installed
   rejected (1)  an audit fails or reports high risk, no audit covers the current
                 version, or a lookup failed (the gate fails closed)
 
-It prints the commit it vetted. Install that exact commit, not whatever is newest.
+It prints the commit and path it vetted. Install that exact commit.
 Set GITHUB_TOKEN to raise GitHub's rate limit when vetting several skills.
 
 Standard library only.
@@ -32,21 +32,27 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime
 from typing import Callable
 
 AUDIT_URL = "https://skills.sh/api/v1/skills/audit/{source}/{skill}"
 GITHUB = "https://api.github.com"
+RAW = "https://raw.githubusercontent.com"
 TIMEOUT_SECONDS = 15
 NAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 LOW_RISK = {"NONE", "SAFE", "LOW"}
 BLOCKING_RISK = {"HIGH", "CRITICAL"}
 MIN_CURRENT_AUDITS = 2  # one scanner alone is not "independent audits"
 PUSH_LOG_PAGES = 3  # 300 pushes back; older audits are treated as out of date
-COMPARE_FILE_LIMIT = 300  # GitHub lists at most this many files per comparison
+MAX_SKILL_FILES = 60  # more SKILL.md files than this: don't try to tell them apart
+MAX_TEXT_BYTES = 65536
+LINK_MODES = {"120000", "160000"}  # symlink, submodule: content that lives elsewhere
+WHOLE_REPO = ""
 
-Fetch = Callable[[str], object]
+FetchJson = Callable[[str], object]
+FetchText = Callable[[str], "str | None"]
 
 
 def is_blocking(audit: dict) -> bool:
@@ -84,11 +90,56 @@ def parse_time(value: object) -> datetime | None:
         return None
 
 
-def find_skill_dir(paths: list[str], skill: str) -> str | None:
-    """The skill's folder, when exactly one folder named after the skill holds a SKILL.md."""
-    suffix = f"{skill}/SKILL.md"
-    matches = [p[: -len("/SKILL.md")] for p in paths if p == suffix or p.endswith("/" + suffix)]
-    return matches[0] if len(matches) == 1 else None
+def frontmatter_name(text: str | None) -> str | None:
+    """The skill's declared name, or None unless the frontmatter states exactly one plain `name:`."""
+    if not text or not text.startswith("---"):
+        return None
+    end = text.find("\n---", 3)
+    if end == -1:
+        return None
+    names = re.findall(r"^name:[ \t]*(\S.*?)[ \t]*$", text[3:end], re.M)
+    return names[0].strip("'\"") if len(names) == 1 else None
+
+
+def resolve_skill_dir(skill_files: dict[str, str | None], skill: str) -> str | None:
+    """The one folder that can be this skill, or None when that is not certain.
+
+    The installer picks a skill by the name in its SKILL.md, not by its folder, so
+    a folder name alone proves nothing. Every SKILL.md that could be taken for the
+    skill is a candidate: its folder is named after the skill, its declared name
+    matches, or its name cannot be read. The answer is certain only when there is
+    one candidate and it declares exactly this name.
+    """
+    candidates: list[tuple[str, str | None]] = []
+    for path, text in skill_files.items():
+        folder = path[: -len("SKILL.md")].rstrip("/")
+        name = frontmatter_name(text)
+        if name is None or name.lower() == skill.lower() or folder.rsplit("/", 1)[-1].lower() == skill.lower():
+            candidates.append((folder, name))
+    if len(candidates) == 1 and candidates[0][1] == skill:
+        return candidates[0][0]
+    return None
+
+
+def tree_index(tree_doc: object) -> dict[str, dict] | None:
+    """Map each path in a recursive git tree to its entry. None if the listing is missing or cut short."""
+    if not isinstance(tree_doc, dict) or tree_doc.get("truncated") or "sha" not in tree_doc:
+        return None
+    index = {entry["path"]: entry for entry in tree_doc.get("tree", [])}
+    index[WHOLE_REPO] = {"type": "tree", "sha": tree_doc["sha"]}
+    return index
+
+
+def has_links(index: dict[str, dict], folder: str) -> bool:
+    """True if the folder holds a symlink or submodule, whose content lives outside it."""
+    prefix = folder + "/" if folder else ""
+    return any(entry.get("mode") in LINK_MODES for path, entry in index.items() if path and path.startswith(prefix))
+
+
+def content_hash(index: dict[str, dict] | None, folder: str) -> str | None:
+    """Git's hash of a folder's whole content: equal hashes mean identical files."""
+    entry = (index or {}).get(folder)
+    return entry.get("sha") if entry and entry.get("type") == "tree" else None
 
 
 def head_at(pushes: list[dict], when: datetime) -> str | None:
@@ -100,18 +151,11 @@ def head_at(pushes: list[dict], when: datetime) -> str | None:
     return None
 
 
-def touches_skill(changed_files: list[str], skill_dir: str | None) -> bool:
-    """True if a change affects the skill. Unknown folder: any change in the repo counts."""
-    if skill_dir is None:
-        return bool(changed_files)
-    return any(path.startswith(skill_dir + "/") for path in changed_files)
-
-
-def current_audits(audits: list[dict], pushes: list[dict], head: str, skill_dir: str | None, changed_between: Callable[[str, str], list[str] | None]) -> tuple[list[dict], list[dict]]:
+def current_audits(audits: list[dict], pushes: list[dict], head: str, same_as_head: Callable[[str], bool]) -> tuple[list[dict], list[dict]]:
     """Split audits into those whose scanned version of the skill is the same as at `head`, and the rest."""
     kept: list[dict] = []
     outdated: list[dict] = []
-    unchanged_since: dict[str, bool] = {head: True}
+    unchanged_since: dict[str, bool] = {}
     for audit in audits:
         audited = parse_time(audit.get("auditedAt"))
         base = head_at(pushes, audited) if audited else None
@@ -119,26 +163,49 @@ def current_audits(audits: list[dict], pushes: list[dict], head: str, skill_dir:
             outdated.append(audit)
             continue
         if base not in unchanged_since:
-            changed = changed_between(base, head)
-            unchanged_since[base] = changed is not None and not touches_skill(changed, skill_dir)
+            unchanged_since[base] = same_as_head(base)
         (kept if unchanged_since[base] else outdated).append(audit)
     return kept, outdated
 
 
-def vet(owner: str, repo: str, skill: str, fetch: Fetch) -> tuple[str, list[str], str | None]:
-    """Run the whole gate. `fetch(url)` returns parsed JSON, or None for a 404."""
+def vet(owner: str, repo: str, skill: str, fetch: FetchJson, fetch_text: FetchText) -> tuple[str, list[str], str | None, str | None]:
+    """Run the whole gate. Returns verdict, reasons, vetted commit and vetted SKILL.md path.
+
+    `fetch(url)` returns parsed JSON and `fetch_text(url)` returns text; both return None for a 404.
+    """
     audit_doc = fetch(AUDIT_URL.format(source=f"{owner}/{repo}", skill=skill))
     audits = audit_doc.get("audits", []) if isinstance(audit_doc, dict) else []
     if not audits:
-        return "rejected", ["no security audits exist for this skill"], None
+        return "rejected", ["no security audits exist for this skill"], None, None
 
     repo_doc = fetch(f"{GITHUB}/repos/{owner}/{repo}")
     if not isinstance(repo_doc, dict):
-        return "rejected", ["source repository not found on GitHub"], None
+        return "rejected", ["source repository not found on GitHub"], None, None
     branch = repo_doc["default_branch"]
     head = fetch(f"{GITHUB}/repos/{owner}/{repo}/commits/{branch}")["sha"]
-    tree = fetch(f"{GITHUB}/repos/{owner}/{repo}/git/trees/{head}?recursive=1") or {}
-    skill_dir = find_skill_dir([entry["path"] for entry in tree.get("tree", [])], skill)
+
+    def tree_at(commit: str) -> dict[str, dict] | None:
+        return tree_index(fetch(f"{GITHUB}/repos/{owner}/{repo}/git/trees/{commit}?recursive=1"))
+
+    head_index = tree_at(head)
+    if head_index is None:
+        return "rejected", ["could not list the repository's files, so nothing can be verified"], None, None
+
+    skill_paths = [path for path in head_index if path == "SKILL.md" or path.endswith("/SKILL.md")]
+    folder = None
+    if 0 < len(skill_paths) <= MAX_SKILL_FILES:
+        texts = {path: fetch_text(f"{RAW}/{owner}/{repo}/{head}/{urllib.parse.quote(path)}") for path in skill_paths}
+        folder = resolve_skill_dir(texts, skill)
+
+    # Watch the skill's folder when it is certain and self-contained; otherwise watch the whole repository.
+    scope = folder if folder is not None and not has_links(head_index, folder) else WHOLE_REPO
+    head_hash = content_hash(head_index, scope)
+
+    def same_as_head(base: str) -> bool:
+        if base == head:
+            return True
+        base_hash = content_hash(tree_at(base), scope)
+        return base_hash is not None and base_hash == head_hash
 
     pushes: list[dict] = []
     for page in range(1, PUSH_LOG_PAGES + 1):
@@ -147,17 +214,11 @@ def vet(owner: str, repo: str, skill: str, fetch: Fetch) -> tuple[str, list[str]
         if len(batch) < 100:
             break
 
-    def changed_between(base: str, tip: str) -> list[str] | None:
-        diff = fetch(f"{GITHUB}/repos/{owner}/{repo}/compare/{base}...{tip}")
-        if not isinstance(diff, dict) or diff.get("status") not in ("ahead", "identical"):
-            return None  # rewritten history or missing commit: cannot prove it is unchanged
-        files = [f["filename"] for f in diff.get("files", [])]
-        return None if len(files) >= COMPARE_FILE_LIMIT else files
-
-    kept, outdated = current_audits(audits, pushes, head, skill_dir, changed_between)
+    kept, outdated = current_audits(audits, pushes, head, same_as_head)
     org_doc = fetch(f"{GITHUB}/orgs/{owner}")
     verified = isinstance(org_doc, dict) and bool(org_doc.get("is_verified"))
     verdict, reasons = decide(kept, verified)
+
     if outdated:
         reasons.append(f"{len(outdated)} older audit(s) not counted: the skill changed after they ran")
     failed_before = [a.get("provider", "unknown") for a in outdated if is_blocking(a)]
@@ -165,24 +226,43 @@ def vet(owner: str, repo: str, skill: str, fetch: Fetch) -> tuple[str, list[str]
         # Newer audits pass, but nothing shows the earlier failure was fixed: a person decides.
         verdict = "ask"
         reasons.insert(0, f"an earlier version failed {', '.join(failed_before)}")
-    return verdict, reasons, head
+    if folder is None and verdict == "approved":
+        # The audits may describe a different folder than the one the installer would pick.
+        verdict = "ask"
+        reasons.insert(0, "cannot tell for certain which folder in the repository is this skill")
+
+    path = f"{folder}/SKILL.md".lstrip("/") if folder is not None else None
+    return verdict, reasons, head, path
 
 
-def fetch_json(url: str) -> object:
-    """GET a JSON document. Returns None on 404; raises OSError on any other failure."""
-    request = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "vet-skill"})
+def _open(url: str, limit: int | None = None) -> bytes | None:
+    """GET a URL, reading at most `limit` bytes. Returns None on 404; raises OSError on any other failure."""
+    request = urllib.request.Request(url, headers={"User-Agent": "vet-skill"})
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token and url.startswith(GITHUB + "/"):
         request.add_header("Authorization", f"Bearer {token}")
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-            return json.load(response)
+            return response.read(limit)
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             return None
         raise OSError(f"{url} returned HTTP {exc.code}") from exc
+
+
+def fetch_json(url: str) -> object:
+    body = _open(url)
+    if body is None:
+        return None
+    try:
+        return json.loads(body)
     except json.JSONDecodeError as exc:
         raise OSError(f"{url} did not return JSON") from exc
+
+
+def fetch_text(url: str) -> str | None:
+    body = _open(url, MAX_TEXT_BYTES)
+    return None if body is None else body.decode("utf-8", errors="replace")
 
 
 def main(argv: list[str]) -> int:
@@ -196,7 +276,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     try:
-        verdict, reasons, commit = vet(owner, repo, skill, fetch_json)
+        verdict, reasons, commit, path = vet(owner, repo, skill, fetch_json, fetch_text)
     except (OSError, KeyError, TypeError) as exc:
         print(f"rejected: lookup failed, so the gate fails closed ({exc!r})")
         return 1
@@ -206,6 +286,8 @@ def main(argv: list[str]) -> int:
         print(f"  - {reason}")
     if commit and verdict != "rejected":
         print(f"  vetted commit: {owner}/{repo}@{commit}")
+        if path:
+            print(f"  vetted path: {path}")
     return {"approved": 0, "ask": 2, "rejected": 1}[verdict]
 
 

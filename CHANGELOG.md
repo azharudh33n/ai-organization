@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.2 (2026-11-22)
+
+Three more fixes to the vetting gate from a second automated security review.
+
+- **The gate now finds a skill's folder the way the installer does**, by the name declared in `SKILL.md`. Before, it went by folder name, so a repo could show the gate one folder and the installer another. If more than one folder could be the skill, or any `SKILL.md` has no readable name, the verdict is never better than `ask`.
+- **Change detection uses git's content hash of the folder** at the audited commit and at the vetted commit, instead of a list of changed files. That covers renames and has no file-count limit.
+- **Symlinks and submodules.** A skill folder that contains one depends on content outside it, so any change anywhere in the repo now counts as a change to the skill.
+- The gate prints the vetted path as well as the commit, and the playbook has the agent check both against `skills-lock.json` after installing.
+
 ## 1.1.1 (2026-11-22)
 
 Security fix for the vetting gate, found by an automated review of 1.1.0.
