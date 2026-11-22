@@ -12,7 +12,7 @@
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](https://code.claude.com/docs/en/plugins-reference)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-SKILL.md-6b4fbb)](https://agentskills.io/specification)
 
-[Website](https://azharudh33n.github.io/ai-organization/) · [Install](#install) · [How it works](#how-it-works) · [Benchmarks](docs/evolution/benchmark.md) · [FAQ](#faq)
+[Website](https://azharudh33n.github.io/ai-organization/) · [Install](#install) · [How it works](#how-it-works) · [FAQ](#faq)
 
 </div>
 
@@ -32,17 +32,6 @@ Asking one AI agent to "build the whole thing" tends to produce unverified work,
   - Preview environments and canary releases with automatic rollback.
 - **Independent QA.** A fresh agent that never saw the build checks every Definition of Done item and records evidence.
 - **Token-efficient.** The core skill loads about 2k tokens. Department playbooks load only when that department is staffed.
-
-## Results
-
-Measured against the original single-file version on the [eval suite](evals/) (details and caveats in [benchmark.md](docs/evolution/benchmark.md)):
-
-| | v0 (original) | v1 (this repo) |
-|---|---|---|
-| Tokens loaded when the skill triggers | ~4,351 | **~2,166 (−50%)** |
-| Eval assertions passed | 14/17 (82%) | **16/17 (94%)** |
-| Small task: time, and planning files written | 125 s, 9 files | **39 s, 0 files** |
-| Web app plan: tasks detailed up front | 97 | **30** (rolling-wave planning) |
 
 ## Install
 
@@ -111,14 +100,14 @@ A cloud or CI session starts with nothing but your repo, so the skills a team ne
 
 1. **Roster first.** Skills already committed under `.claude/skills/` (tracked in `skills-lock.json`) are used as they are.
 2. **Search.** `npx skills find "<stack or task>"` on skills.sh.
-3. **Vetting gate.** `vet_skill.py` reads the independent security audits skills.sh publishes (Snyk, Socket, Gen Agent Trust Hub and others) and checks that the publisher is a verified GitHub organization. The verdict comes from those outside facts, not from the model's reading of the skill.
-4. **Pinned install.** Approved skills are installed at an exact commit, with a content hash in `skills-lock.json`, and committed so every later session has them.
+3. **Vetting gate.** `vet_skill.py` reads the independent security audits skills.sh publishes (Snyk, Socket, Gen Agent Trust Hub and others) and checks that the publisher is a verified GitHub organization. An audit only counts if the skill's files have not changed since it ran, checked against GitHub's push log. The verdict comes from those outside facts, not from the model's reading of the skill.
+4. **Pinned install.** Approved skills are installed at the exact commit the gate vetted, with a content hash in `skills-lock.json`, and committed so every later session has them.
 
 | Gate verdict | When | With you there | Unattended |
 |---|---|---|---|
-| `approved` | All audits pass at low risk, verified publisher | Installs | Installs |
-| `ask` | Unverified publisher, or an audit warns | Asks you | Logs a proposal and carries on without it |
-| `rejected` | An audit fails, high risk, or no audits | Never installs | Never installs |
+| `approved` | At least two current audits, all passing at low risk, verified publisher | Installs | Installs |
+| `ask` | An audit warns, an earlier version failed, only one audit is current, or the publisher is unverified | Asks you | Logs a proposal and carries on without it |
+| `rejected` | A current audit fails or reports high risk, or no audit covers the current version | Never installs | Never installs |
 
 Popularity is not safety. When this gate was built, the top skills.sh result for "playwright testing" had thousands of installs and a failing Snyk audit, and the gate rejected it.
 
@@ -135,6 +124,8 @@ The [`evals/`](evals/) folder holds test cases in the layout `claude plugin eval
 ```bash
 claude plugin eval . --allow-tools Write,Edit   # real, billed model runs
 ```
+
+Notes from developing the skill against this suite are in [benchmark.md](docs/evolution/benchmark.md).
 
 ## Quality and security of this repo
 
@@ -160,7 +151,7 @@ Subagents are the workers. ai-organization is the management layer: it decides h
 Yes. Claude plays each role in sequence, announces each switch, and keeps the same briefs and gates.
 
 **Will it burn through my tokens?**
-It was designed not to. Small jobs skip the ceremony entirely, playbooks load on demand, handoffs are capped at 200 words, and plans are detailed one milestone at a time. On the eval suite it used less time and fewer tokens than the original.
+It was designed not to. Small jobs skip the ceremony entirely, playbooks load on demand, handoffs are capped at 200 words, and plans are detailed one milestone at a time.
 
 **Which models does it support?**
 Any Claude model that supports skills. It tells Claude to use smaller models for mechanical roles and the strongest model for architecture and final review.

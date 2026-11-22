@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ai-organization: Claude Code skill for multi-agent project orchestration</title>
-<meta name="description" content="Open-source Claude Code skill and plugin. Claude acts as CEO of an AI team: right-sized subagents, vetted skills, Karpathy's methods, modern CI/CD gates and independent QA. 50% fewer tokens than v0.">
+<meta name="description" content="Open-source Claude Code skill and plugin. Claude acts as CEO of an AI team: right-sized subagents, vetted skills, Karpathy's methods, modern CI/CD gates and independent QA.">
 <meta name="keywords" content="Claude Code skill, Claude Code plugin, multi-agent orchestration, AI agent team, subagents, Agent Skills, SKILL.md, Karpathy, CI/CD, AI QA">
 <meta name="author" content="azharudh33n">
 <meta name="robots" content="index, follow">
@@ -39,7 +39,7 @@
       "programmingLanguage": "Markdown",
       "runtimePlatform": "Claude Code",
       "license": "https://opensource.org/licenses/MIT",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": { "@type": "Person", "name": "azharudh33n", "url": "https://github.com/azharudh33n" },
       "keywords": "Claude Code skill, multi-agent orchestration, subagents, Agent Skills, CI/CD, QA"
     },
@@ -53,7 +53,7 @@
         { "@type": "Question", "name": "Does it work without subagents?",
           "acceptedAnswer": { "@type": "Answer", "text": "Yes. Claude plays each role in sequence, announces each switch, and keeps the same briefs and quality gates." } },
         { "@type": "Question", "name": "Will it use a lot of tokens?",
-          "acceptedAnswer": { "@type": "Answer", "text": "No. Small jobs skip the ceremony, playbooks load on demand, handoffs are capped at 200 words, and plans are detailed one milestone at a time. The core skill loads about 2,000 tokens, half of the original." } }
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Small jobs skip the ceremony, playbooks load on demand, handoffs are capped at 200 words, and plans are detailed one milestone at a time. The core skill loads about 2,000 tokens." } }
       ]
     }
   ]
@@ -137,24 +137,6 @@ footer{padding:32px 0;color:var(--muted);font-size:14px;border-top:1px solid var
         <div class="card"><h3>Production CI/CD from day one</h3><p>Required checks, merge queues, pinned actions, OIDC, SLSA provenance, preview environments and canary releases with automatic rollback.</p></div>
         <div class="card"><h3>Independent QA</h3><p>A fresh agent that never saw the build checks every Definition of Done item and records evidence.</p></div>
         <div class="card"><h3>Token-efficient</h3><p>About 2,000 tokens on trigger. Playbooks load only for the departments you staff.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <h2>Measured, not claimed</h2>
-      <p class="lede">v1 against the original single-file skill on the open eval suite. One run per case, so treat the numbers as a direction. The full method and caveats are in the <a href="https://github.com/azharudh33n/ai-organization/blob/main/docs/evolution/benchmark.md">benchmark report</a>.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Metric</th><th>v0 (original)</th><th>v1</th></tr></thead>
-          <tbody>
-            <tr><td>Tokens loaded on trigger</td><td>~4,351</td><td><strong>~2,166 (−50%)</strong></td></tr>
-            <tr><td>Eval assertions passed</td><td>14/17</td><td><strong>16/17</strong></td></tr>
-            <tr><td>Small task: time and planning files written</td><td>125 s, 9 files</td><td><strong>39 s, 0 files</strong></td></tr>
-            <tr><td>Web app plan: tasks detailed up front</td><td>97</td><td><strong>30</strong></td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </section>

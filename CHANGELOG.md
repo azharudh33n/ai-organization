@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.1 (2026-11-22)
+
+Security fix for the vetting gate, found by an automated review of 1.1.0.
+
+- **The gate now judges the commit that gets installed.** In 1.1.0 it read a skill's audits and then installed whatever commit was newest, so a skill changed after its audits could be installed on the strength of them. An audit now counts only if the skill's files are unchanged between the commit that was current when the audit ran and the commit being vetted, using GitHub's push log and diff. The gate prints that commit and the install pins it.
+- `approved` now needs at least two current audits.
+- A failing audit of an earlier version leads to `ask`, not `approved`, even when newer audits pass.
+- README and site: removed the comparison table against the unpublished original version.
+
 ## 1.1.0 (2026-11-22)
 
 Talent sourcing rebuilt for cloud and unattended sessions, where no skills are installed.

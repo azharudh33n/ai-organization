@@ -84,3 +84,5 @@ What this shows:
 - The agent followed the unattended policy: only the `approved` skill was installed, and re-running the gate on it afterwards still returned `approved`.
 - The gate is strict. Skills from Microsoft, GitHub and Supabase landed on `ask` because one scanner warned, so an unattended run hired one skill out of six candidates. In practice a person seeds the roster once, by approving the `ask` skills they want, and cloud sessions then start with them.
 - Two roles went ahead on a job brief alone. Whether a hired skill improves the work over a brief has not been measured.
+
+The table shows the gate as it was in v1.1.0. Since v1.1.1 an audit counts only if the skill is unchanged since it ran. Under that rule the installed Supabase skill is still `approved` (three current audits), the two skills with a current failing audit are still `rejected`, and `currents-dev/playwright-best-practices-skill` moves from `rejected` to `ask`: its failing scan predates a later change, and its three current scans pass.
