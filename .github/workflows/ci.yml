@@ -27,6 +27,8 @@ jobs:
           python-version: "3.12"
       - name: Frontmatter, size budget and reference links
         run: python3 scripts/validate_skill.py
+      - name: Validator unit tests
+        run: python3 -m unittest discover -s tests
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
@@ -57,7 +59,13 @@ jobs:
           persist-credentials: false
       - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
-          args: --no-progress --max-retries 3 --accept 200,429 README.md docs skills
+          # Own Pages site and release links are produced by later workflows; badges are rate-limited.
+          args: >-
+            --no-progress --max-retries 3 --accept 200,429
+            --exclude '^https://azharudh33n\.github\.io/'
+            --exclude '^https://github\.com/azharudh33n/ai-organization/(releases|security/advisories)'
+            --exclude '^https://img\.shields\.io/'
+            README.md SECURITY.md CONTRIBUTING.md docs skills site
           fail: true
 
   workflow-security:

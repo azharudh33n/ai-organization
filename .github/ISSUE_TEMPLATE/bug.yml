@@ -1,0 +1,29 @@
+name: Bug or bad behaviour
+description: The skill did something wrong, wasteful or unsafe
+labels: [bug]
+body:
+  - type: textarea
+    id: prompt
+    attributes:
+      label: What you asked
+      description: The prompt you gave Claude. Remove anything private.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: Tier chosen, roles hired, files written, or where it went off track.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Output of `claude --version`, the plugin version and the model.

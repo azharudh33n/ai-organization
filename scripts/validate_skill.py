@@ -7,12 +7,14 @@ Usage: python3 scripts/validate_skill.py [--max-tokens N]
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 LINK_RE = re.compile(r"`(references/[\w./-]+\.md)`")
 
 
@@ -84,6 +86,31 @@ def check_skill(skill_dir: Path, max_tokens: int) -> list[str]:
     return errors
 
 
+def check_release_metadata(root: Path) -> list[str]:
+    """plugin.json, marketplace.json, CHANGELOG.md and CITATION.cff must agree."""
+    errors = []
+    try:
+        plugin = json.loads((root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        market = json.loads((root / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"cannot read plugin manifests: {exc}"]
+
+    version = plugin.get("version", "")
+    if not SEMVER_RE.match(version):
+        errors.append(f"plugin.json version '{version}' is not semver X.Y.Z")
+    names = [p.get("name") for p in market.get("plugins", [])]
+    if plugin.get("name") not in names:
+        errors.append(f"marketplace.json does not list plugin '{plugin.get('name')}'")
+
+    changelog = root / "CHANGELOG.md"
+    if not changelog.is_file() or not re.search(rf"^## {re.escape(version)}\b", changelog.read_text(encoding="utf-8"), re.M):
+        errors.append(f"CHANGELOG.md has no '## {version}' section")
+    citation = root / "CITATION.cff"
+    if citation.is_file() and not re.search(rf"^version: {re.escape(version)}$", citation.read_text(encoding="utf-8"), re.M):
+        errors.append(f"CITATION.cff version does not match {version}")
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     # v0 of ai-organization loaded ~4351 tokens on trigger; the budget holds v1+ to at most half of that.
@@ -99,6 +126,9 @@ def main() -> int:
         for err in check_skill(skill_dir, args.max_tokens):
             print(f"ERROR {skill_dir.name}: {err}", file=sys.stderr)
             failed = True
+    for err in check_release_metadata(ROOT):
+        print(f"ERROR release metadata: {err}", file=sys.stderr)
+        failed = True
     return 1 if failed else 0
 
 

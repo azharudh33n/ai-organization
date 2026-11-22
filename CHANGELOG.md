@@ -9,7 +9,9 @@ First public release, evolved from the author's original single-file skill (v0).
 - **Size the job first.** Solo, Squad and Company tiers, so small tasks skip the full ceremony.
 - **Token budget rules.** Brief by reference, handoffs of 200 words or less, match the model to the role, read once and share a map, cap the loops.
 - **CI/CD playbook** (`references/cicd.md`): trunk-based flow, required checks, merge queues, SHA pinning or workflow lockfiles, least-privilege tokens, OIDC, provenance and SBOM attestations, Dependabot cooldowns, preview environments, progressive delivery with automatic rollback, guardrails for agent-written code, and DORA's five metrics.
-- Packaging as a Claude Code plugin and marketplace, an eval suite (`claude plugin eval` layout), a validator script and hardened CI.
+- Packaging as a Claude Code plugin and marketplace, an eval suite (`claude plugin eval` layout), a validator script with unit tests, and hardened CI.
+- Release pipeline: tagged releases ship `ai-organization-skill.zip` with SHA256SUMS and a SLSA build provenance attestation.
+- Project site on GitHub Pages with search and social metadata (Open Graph, JSON-LD, sitemap), plus SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CITATION.cff and issue/PR templates.
 
 ### Changed
 

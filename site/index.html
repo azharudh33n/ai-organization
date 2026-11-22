@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ai-organization: Claude Code skill for multi-agent project orchestration</title>
+<meta name="description" content="Open-source Claude Code skill and plugin. Claude acts as CEO of an AI team: right-sized subagents, vetted skills, Karpathy's methods, 2026 CI/CD gates and independent QA. 50% fewer tokens than v0.">
+<meta name="keywords" content="Claude Code skill, Claude Code plugin, multi-agent orchestration, AI agent team, subagents, Agent Skills, SKILL.md, Karpathy, CI/CD, AI QA">
+<meta name="author" content="azharudh33n">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://azharudh33n.github.io/ai-organization/">
+<link rel="icon" type="image/png" href="icon.png">
+<meta name="theme-color" content="#0f172a">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ai-organization">
+<meta property="og:title" content="ai-organization: run any project like a top company with Claude Code">
+<meta property="og:description" content="Right-sized AI teams, vetted skills, Karpathy's methods, 2026 CI/CD gates and independent QA. Open source, MIT.">
+<meta property="og:url" content="https://azharudh33n.github.io/ai-organization/">
+<meta property="og:image" content="https://azharudh33n.github.io/ai-organization/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="ai-organization: run any project like a top company">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ai-organization: run any project like a top company with Claude Code">
+<meta name="twitter:description" content="Right-sized AI teams, vetted skills, Karpathy's methods, 2026 CI/CD gates and independent QA.">
+<meta name="twitter:image" content="https://azharudh33n.github.io/ai-organization/social-preview.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "ai-organization",
+      "description": "A Claude Code skill and plugin that makes Claude run projects like a top company: right-sized AI teams, vetted skills, Karpathy's methods, CI/CD gates and independent QA.",
+      "codeRepository": "https://github.com/azharudh33n/ai-organization",
+      "url": "https://azharudh33n.github.io/ai-organization/",
+      "programmingLanguage": "Markdown",
+      "runtimePlatform": "Claude Code",
+      "license": "https://opensource.org/licenses/MIT",
+      "version": "1.0.0",
+      "author": { "@type": "Person", "name": "azharudh33n", "url": "https://github.com/azharudh33n" },
+      "keywords": "Claude Code skill, multi-agent orchestration, subagents, Agent Skills, CI/CD, QA"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is a Claude Code skill?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A skill is a folder with a SKILL.md file that Claude loads when a task matches its description, following the open Agent Skills specification. ai-organization is a skill packaged as a Claude Code plugin." } },
+        { "@type": "Question", "name": "How is ai-organization different from just using subagents?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Subagents are the workers. ai-organization is the management layer: it decides how many to hire, what each may touch, which skills they load and what evidence counts as done, and it keeps builders from grading their own work." } },
+        { "@type": "Question", "name": "Does it work without subagents?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Claude plays each role in sequence, announces each switch, and keeps the same briefs and quality gates." } },
+        { "@type": "Question", "name": "Will it use a lot of tokens?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Small jobs skip the ceremony, playbooks load on demand, handoffs are capped at 200 words, and plans are detailed one milestone at a time. The core skill loads about 2,000 tokens, half of the original." } }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+:root{--bg:#ffffff;--fg:#0f172a;--muted:#475569;--card:#f8fafc;--line:#e2e8f0;--accent:#b45309;--accent-bg:#fef3c7;--code:#0f172a;--code-fg:#facc15}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#f8fafc;--muted:#94a3b8;--card:#111c33;--line:#1e293b;--accent:#facc15;--accent-bg:#1e293b;--code:#020617;--code-fg:#facc15}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+header{padding:20px 0;border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;text-decoration:none;white-space:nowrap}
+.brand img{width:32px;height:32px;border-radius:6px}
+nav{white-space:nowrap}
+nav a{margin-left:18px;text-decoration:none;color:var(--muted)}
+nav a:hover{color:var(--fg)}
+.hero{padding-top:72px;padding-bottom:48px}
+.eyebrow{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--accent-bg);color:var(--accent);font-size:13px;font-weight:600}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.1;margin:16px 0;letter-spacing:-.02em}
+.lede{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:720px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0}
+.btn{display:inline-block;padding:12px 18px;border-radius:10px;font-weight:600;text-decoration:none;border:1px solid var(--line)}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+pre{background:var(--code);color:var(--code-fg);padding:16px;border-radius:12px;overflow-x:auto;font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0}
+section{padding:40px 0;border-top:1px solid var(--line)}
+h2{font-size:28px;margin:0 0 16px;letter-spacing:-.01em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card h3{margin:0 0 6px;font-size:17px}
+.card p{margin:0;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+td strong{color:var(--accent)}
+.table-wrap{overflow-x:auto}
+ol.steps{padding-left:20px}
+ol.steps li{margin:8px 0}
+details{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;background:var(--card)}
+summary{cursor:pointer;font-weight:600}
+details p{color:var(--muted);margin:10px 0 0}
+footer{padding:32px 0;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+@media (max-width:600px){nav a{margin-left:12px;font-size:14px}nav .opt{display:none}.hero{padding-top:48px;padding-bottom:32px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="./"><img src="icon.png" alt="" width="32" height="32">ai-organization</a>
+    <nav aria-label="Primary">
+      <a href="#install">Install</a>
+      <a class="opt" href="#how">How it works</a>
+      <a href="https://github.com/azharudh33n/ai-organization">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <span class="eyebrow">Claude Code skill · plugin · MIT</span>
+    <h1>Run any project like a top company, with an AI team in Claude Code</h1>
+    <p class="lede">ai-organization turns Claude into the CEO of a right-sized team of subagents. It hires only the roles a job needs, vets their skills, applies Karpathy's methods, gates code on modern CI/CD, and ships only after independent QA proves it works.</p>
+    <div class="cta">
+      <a class="btn primary" href="#install">Install in Claude Code</a>
+      <a class="btn" href="https://github.com/azharudh33n/ai-organization">View on GitHub</a>
+    </div>
+    <pre><code>/plugin marketplace add azharudh33n/ai-organization
+/plugin install ai-organization@ai-organization</code></pre>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>Why teams use it</h2>
+      <div class="grid">
+        <div class="card"><h3>Right-sized, not bloated</h3><p>Solo, Squad or Company tier, chosen before anyone is hired. A README fix stays a one-person job.</p></div>
+        <div class="card"><h3>Separation of duties</h3><p>Whoever builds a deliverable never grades it. Benchmarks, acceptance tests, reviews and fact-checks go to someone else.</p></div>
+        <div class="card"><h3>Karpathy's operating system</h3><p>Think before acting, simplicity first, surgical changes, and checks that pass or fail. A locked-eval loop handles any metric goal.</p></div>
+        <div class="card"><h3>2026 CI/CD from day one</h3><p>Required checks, merge queues, pinned actions, OIDC, SLSA provenance, preview environments and canary releases with automatic rollback.</p></div>
+        <div class="card"><h3>Independent QA</h3><p>A fresh agent that never saw the build checks every Definition of Done item and records evidence.</p></div>
+        <div class="card"><h3>Token-efficient</h3><p>About 2,000 tokens on trigger. Playbooks load only for the departments you staff.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Measured, not claimed</h2>
+      <p class="lede">v1 against the original single-file skill on the open eval suite. One run per case, so treat the numbers as a direction. The full method and caveats are in the <a href="https://github.com/azharudh33n/ai-organization/blob/main/docs/evolution/benchmark.md">benchmark report</a>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>v0 (original)</th><th>v1</th></tr></thead>
+          <tbody>
+            <tr><td>Tokens loaded on trigger</td><td>~4,351</td><td><strong>~2,166 (−50%)</strong></td></tr>
+            <tr><td>Eval assertions passed</td><td>14/17</td><td><strong>16/17</strong></td></tr>
+            <tr><td>Small task: time and planning files written</td><td>125 s, 9 files</td><td><strong>39 s, 0 files</strong></td></tr>
+            <tr><td>Web app plan: tasks detailed up front</td><td>97</td><td><strong>30</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li><strong>Size the job:</strong> Solo, Squad or Company.</li>
+        <li><strong>Brief and Definition of Done:</strong> 5–10 criteria, each a test, metric or inspection.</li>
+        <li><strong>Org chart:</strong> the smallest team that covers the DoD without letting builders grade their own work.</li>
+        <li><strong>Talent sourcing:</strong> installed and official skills first, each scored, security-reviewed and pinned.</li>
+        <li><strong>Hiring:</strong> one tight job brief per subagent, with handoffs of 200 words or less.</li>
+        <li><strong>Plan and execute:</strong> rolling-wave plan, parallel lanes, CI/CD before features.</li>
+        <li><strong>Independent QA:</strong> evidence for every DoD item.</li>
+        <li><strong>Review, delivery and retro:</strong> you approve anything irreversible before it happens.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Install</h2>
+      <p><strong>Claude Code plugin:</strong></p>
+      <pre><code>/plugin marketplace add azharudh33n/ai-organization
+/plugin install ai-organization@ai-organization</code></pre>
+      <p><strong>Manual:</strong></p>
+      <pre><code>git clone https://github.com/azharudh33n/ai-organization
+cp -r ai-organization/skills/ai-organization ~/.claude/skills/</code></pre>
+      <p><strong>Claude app:</strong> download <code>ai-organization-skill.zip</code> from the <a href="https://github.com/azharudh33n/ai-organization/releases/latest">latest release</a> and upload it as a custom skill.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>FAQ</h2>
+      <details><summary>What is a Claude Code skill?</summary><p>A folder with a SKILL.md file that Claude loads when a task matches its description, following the open Agent Skills specification. ai-organization is a skill packaged as a Claude Code plugin.</p></details>
+      <details><summary>How is it different from just using subagents?</summary><p>Subagents are the workers. ai-organization is the management layer: how many to hire, what each may touch, which skills they load, and what evidence counts as done.</p></details>
+      <details><summary>Does it work without subagents?</summary><p>Yes. Claude plays each role in sequence and keeps the same briefs and quality gates.</p></details>
+      <details><summary>Will it use a lot of tokens?</summary><p>No. Small jobs skip the ceremony, playbooks load on demand, and plans are detailed one milestone at a time.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">ai-organization · MIT licensed · <a href="https://github.com/azharudh33n/ai-organization">github.com/azharudh33n/ai-organization</a></div>
+</footer>
+</body>
+</html>
