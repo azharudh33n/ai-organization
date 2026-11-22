@@ -84,7 +84,7 @@ You can also just describe the project. The skill triggers on requests like "bui
 1. **Size the job:** Solo (just do it and verify), Squad (2–4 hires, one brief file) or Company (full org, every gate).
 2. **Brief and Definition of Done:** 5–10 criteria, each one a test, metric or inspection.
 3. **Org chart:** the smallest team that covers every DoD item without letting builders grade their own work.
-4. **Talent sourcing:** installed skills first, then official vendor skills, then proven libraries such as [`obra/superpowers`](https://github.com/obra/superpowers) and [Karpathy's guidelines](https://github.com/multica-ai/andrej-karpathy-skills). Each one is scored, security-reviewed and pinned to a commit.
+4. **Talent sourcing:** most roles need only a good brief. When one needs a skill, it comes from the project's committed roster or from [skills.sh](https://skills.sh), and only after it passes the vetting gate (below). It is installed pinned to a commit and committed to the repo.
 5. **Hiring:** one job brief per subagent, with success criteria, boundaries and a handoff of 200 words or less.
 6. **Plan and execute:** rolling-wave plan, parallel lanes, the CI/CD pipeline before any feature work, and the Karpathy Loop for metric goals.
 7. **Independent QA:** a fresh agent that never saw the build checks every DoD item and records evidence.
@@ -96,13 +96,31 @@ You can also just describe the project. The skill triggers on requests like "bui
 |---|---|
 | [`SKILL.md`](skills/ai-organization/SKILL.md) | Always, when the skill triggers (~2k tokens) |
 | [`templates.md`](skills/ai-organization/references/templates.md) | Writing the brief, org chart, job briefs, plan or ADRs |
-| [`talent-sourcing.md`](skills/ai-organization/references/talent-sourcing.md) | Choosing and vetting skills for a role |
+| [`talent-sourcing.md`](skills/ai-organization/references/talent-sourcing.md) | A role needs a skill: roster, skills.sh search, vetting gate, pinned install |
+| [`scripts/vet_skill.py`](skills/ai-organization/scripts/vet_skill.py) | Run before installing any third-party skill |
 | [`playbook-engineering.md`](skills/ai-organization/references/playbook-engineering.md) | Engineers are hired |
 | [`cicd.md`](skills/ai-organization/references/cicd.md) | Any software deliverable: pipeline, supply chain, deployment, DORA metrics |
 | [`playbook-research.md`](skills/ai-organization/references/playbook-research.md) | Research or benchmarking |
 | [`playbook-creative.md`](skills/ai-organization/references/playbook-creative.md) | Video, design or UI work |
 | [`karpathy-loop.md`](skills/ai-organization/references/karpathy-loop.md) | A DoD item is a number, or Data/ML hires |
 | [`qa-and-review.md`](skills/ai-organization/references/qa-and-review.md) | QA, review board and retro |
+
+## Skill sourcing for cloud sessions
+
+A cloud or CI session starts with nothing but your repo, so the skills a team needs have to live in the repo. ai-organization handles that with the [`skills`](https://skills.sh) CLI and a vetting gate:
+
+1. **Roster first.** Skills already committed under `.claude/skills/` (tracked in `skills-lock.json`) are used as they are.
+2. **Search.** `npx skills find "<stack or task>"` on skills.sh.
+3. **Vetting gate.** `vet_skill.py` reads the independent security audits skills.sh publishes (Snyk, Socket, Gen Agent Trust Hub and others) and checks that the publisher is a verified GitHub organization. The verdict comes from those outside facts, not from the model's reading of the skill.
+4. **Pinned install.** Approved skills are installed at an exact commit, with a content hash in `skills-lock.json`, and committed so every later session has them.
+
+| Gate verdict | When | With you there | Unattended |
+|---|---|---|---|
+| `approved` | All audits pass at low risk, verified publisher | Installs | Installs |
+| `ask` | Unverified publisher, or an audit warns | Asks you | Logs a proposal and carries on without it |
+| `rejected` | An audit fails, high risk, or no audits | Never installs | Never installs |
+
+Popularity is not safety. When this gate was built, the top skills.sh result for "playwright testing" had thousands of installs and a failing Snyk audit, and the gate rejected it.
 
 ## Evals
 

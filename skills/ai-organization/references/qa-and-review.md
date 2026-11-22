@@ -21,4 +21,4 @@ The QA Lead is a fresh agent. It gets only the brief, the DoD and the deliverabl
 
 ## Retro (`org/retro.md`)
 
-Which hires and skills did best, which underperformed, where tokens or time were wasted, and what to hire or do differently next time. Update the hiring log so the next project reuses what worked.
+Which hires and skills did best, which underperformed, where tokens or time were wasted, and what to hire or do differently next time. List rostered skills that no role used, so they can be removed.

@@ -26,7 +26,7 @@ Move up a tier only when a gate fails for lack of a role. If the user names a ti
 1. **Nothing ships unverified.** A deliverable passes QA from an agent that did not build it. Solo work is the exception: run the checks yourself and show the output.
 2. **Evidence over claims.** "Done" means a command ran, a frame was checked, or a source was cited, and the proof is in the log or the reply.
 3. **Parallel when independent, sequential when dependent.**
-4. **Vet third-party skills before loading them**, because they can run code (see `references/talent-sourcing.md`).
+4. **Load a third-party skill only after it passes the vetting gate**, because skills run with your permissions (`references/talent-sourcing.md`).
 5. **Ask only when a wrong guess is expensive** (at most 3 sharp questions). Otherwise take the most reasonable reading, write it down as an assumption, and keep going.
 6. **Spend tokens like money.** Follow the token budget rules below.
 7. **The user approves anything irreversible or shared** before it happens: production deploys, publishing, spending money, sending messages, deleting data. Agents prepare the action. The CEO asks.
@@ -53,7 +53,7 @@ On top of that:
 - **Read once.** One agent explores a codebase and writes a short map. The others read the map instead of exploring again.
 - **Plan in rolling waves.** Detail the next milestone down to tasks. Keep later milestones as outcomes with gates, and break each one down when its lane starts. A 90-task plan written on day one costs tokens and goes stale.
 - **Cap the loops.** QA bug loops stop at 3 rounds per item and escalate. Experiment loops have a fixed budget.
-- **Reuse.** Check the shared hiring log at `~/.claude/ai-organization/hiring-log.md` before sourcing skills, and add this project's picks to it at the retro.
+- **Reuse.** Skills committed to the project (`.claude/skills/`, `skills-lock.json`) are the roster. Check it before sourcing anything.
 
 ## Phases
 
@@ -63,7 +63,7 @@ Each phase ends at a gate. Solo runs phases 0, 5 and 6 informally: a one-line go
 
 **1. Org chart.** Split the work into workstreams and hire the fewest roles that cover every DoD item without breaking separation of duties. Map each role to a mission, the DoD items it owns, who it reports to, and what it depends on. Don't hire design for a backend task or engineers for a research question.
 
-**2. Talent sourcing.** For each role, find the best skills or agent definitions. Check installed skills first, then official vendor skills, proven methodology libraries and agent rosters. Score them, review their security, and pin a commit. Log your choices. Method and rubric: `references/talent-sourcing.md`.
+**2. Talent sourcing.** Most roles need only a good job brief. Hire a skill only for current stack knowledge or a tested workflow. Check the roster and installed skills, then search skills.sh. Run the vetting gate, install pinned to a commit, and commit the skill so cloud sessions start with it. Method: `references/talent-sourcing.md`.
 
 **3. Hiring.** Write one job brief per role (template in `references/templates.md`) and use it as the subagent's prompt. It sets success criteria, quality bar, boundaries (files and tools) and handoff format.
 

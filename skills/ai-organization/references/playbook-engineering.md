@@ -18,4 +18,6 @@ The flow follows `obra/superpowers` with Karpathy's rules on top. If superpowers
 
 **Security basics for every web deliverable:** validate input on the server, encode output for its context, check authorization on the server for every request, keep secrets out of client bundles, and rate-limit any form that sends email or writes data.
 
+**Current docs over memory:** before using a library or platform API, check its current documentation (a docs tool such as Context7 if one is connected, otherwise the official docs) and note the version you built against. Model memory of APIs goes stale.
+
 **Context saving:** one agent maps the codebase (entry points, key modules, test commands) into `org/codebase-map.md`. Every other engineer reads that map instead of exploring again.

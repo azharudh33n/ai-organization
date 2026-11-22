@@ -65,3 +65,22 @@ An independent QA review of the repo (not of the eval runs) led to these fixes, 
 - Grading was done by an LLM judge. Count-based assertions were checked by counting files and roles.
 - The dry runs test planning and staffing, not execution quality.
 - One v2 research run read a hiring log another eval run had left in the shared workspace. Future runs should get isolated directories.
+
+## v1.1.0: skill sourcing check
+
+Talent sourcing was rebuilt around skills.sh and a vetting gate. One fresh agent ran phases 0 to 3 on a Next.js, Supabase and Playwright project, told it was unattended in a cloud session with an empty roster. This was a single manual run, checked by inspecting the resulting repo, not a graded eval.
+
+| Candidate | Installs | Gate verdict | Outcome |
+|---|---|---|---|
+| `supabase/agent-skills` supabase-postgres-best-practices | n/a | `approved` | Installed at a pinned commit, committed in its own commit |
+| `microsoft/playwright-cli` playwright-cli | 224K | `ask` (Snyk warns, medium) | Logged as a proposal |
+| `github/awesome-copilot` playwright-generate-test | 18.3K | `ask` (Runlayer warns, medium) | Logged as a proposal |
+| `supabase/agent-skills` supabase | 372.3K | `ask` (Snyk and ZeroLeaks warn, medium) | Logged as a proposal |
+| `currents-dev/playwright-best-practices-skill` | 110.2K | `rejected` (Runlayer fails, high) | Not installed |
+| `vercel-labs/openreview` next-best-practices | 7.1K | `rejected` (Runlayer fails, high) | Not installed |
+
+What this shows:
+
+- The agent followed the unattended policy: only the `approved` skill was installed, and re-running the gate on it afterwards still returned `approved`.
+- The gate is strict. Skills from Microsoft, GitHub and Supabase landed on `ask` because one scanner warned, so an unattended run hired one skill out of six candidates. In practice a person seeds the roster once, by approving the `ask` skills they want, and cloud sessions then start with them.
+- Two roles went ahead on a job brief alone. Whether a hired skill improves the work over a brief has not been measured.

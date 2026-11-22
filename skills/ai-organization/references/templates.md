@@ -26,7 +26,7 @@ A weak DoD item reads "the app works". A strong one reads "`pnpm test` passes an
 
 ## Hiring log row (`org/hiring-log.md`)
 
-| Role | Skill or agent (repo, path, commit) | Score /30 | Runner-up | Why |
+| Role | Skill (`owner/repo@commit`) | Gate verdict and reasons | Installed or proposed | Why it fits |
 |---|---|---|---|---|
 
 ## Job brief (the subagent's prompt)

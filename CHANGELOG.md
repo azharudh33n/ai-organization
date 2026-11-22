@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.1.0 (2026-11-22)
+
+Talent sourcing rebuilt for cloud and unattended sessions, where no skills are installed.
+
+Added:
+
+- **Vetting gate** (`scripts/vet_skill.py`). It decides from the independent security audits skills.sh publishes and from GitHub's verified-organization status, and fails closed. Verdicts are `approved`, `ask` and `rejected`.
+- **Committed roster.** Approved skills are installed with the `skills` CLI, pinned to a commit with a content hash in `skills-lock.json`, and committed to the project so later sessions start with them.
+- **Unattended policy.** With nobody to ask, only `approved` skills are installed. Anything else is logged as a proposal.
+- Engineering playbook: check current library docs before using an API, instead of relying on model memory.
+
+Changed:
+
+- The hardcoded list of GitHub repos and awesome-lists is gone, along with the 30-point scoring rubric. skills.sh search and the gate replace them.
+- The hiring log lives in the project (`org/hiring-log.md`). The shared log under `~/.claude/` did not survive cloud sessions.
+
+Verified:
+
+- The gate was run against live skills: it approved `vercel-labs/agent-skills` web-design-guidelines, asked on `anthropics/skills` webapp-testing (audit warnings) and rejected a popular Playwright skill with a failing Snyk audit.
+
 ## 1.0.0 (2026-11-22)
 
 First public release, evolved from the author's original single-file skill (v0). Measured against v0 on the eval suite in `evals/`; numbers are in `docs/evolution/benchmark.md`.
