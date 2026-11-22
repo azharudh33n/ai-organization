@@ -1,0 +1,10 @@
+{
+  "name": "ai-organization",
+  "version": "1.0.0",
+  "description": "Claude runs your project like a top company: it sizes the job, hires only the subagents it needs, vets their skills, applies Karpathy's methods, gates software on modern CI/CD, and ships only after independent QA.",
+  "author": { "name": "azharudh33n", "url": "https://github.com/azharudh33n" },
+  "homepage": "https://github.com/azharudh33n/ai-organization",
+  "repository": "https://github.com/azharudh33n/ai-organization",
+  "license": "MIT",
+  "keywords": ["orchestration", "subagents", "multi-agent", "karpathy", "ci-cd", "qa", "project-management"]
+}

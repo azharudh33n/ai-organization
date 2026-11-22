@@ -1,0 +1,15 @@
+{
+  "name": "ai-organization",
+  "description": "One plugin: ai-organization, a skill that makes Claude run projects like a top company with right-sized AI teams, vetted skills, CI/CD gates and independent QA.",
+  "owner": {
+    "name": "azharudh33n",
+    "url": "https://github.com/azharudh33n"
+  },
+  "plugins": [
+    {
+      "name": "ai-organization",
+      "source": "./",
+      "description": "Run any project like a top company: right-sized AI team, vetted skills, Karpathy methods, CI/CD gates and independent QA."
+    }
+  ]
+}

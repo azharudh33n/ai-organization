@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: webapp-ci-cd-plan
+expected_outcome: |
+  An org/ folder with a brief whose Definition of Done is checkable, a lean org chart, and a plan whose CI/CD design gates merges on automated checks, hardens the pipeline's supply chain, uses preview or staging environments with a rollback path, and keeps QA independent of the builders. Patient-data privacy shows up as a DoD item or top risk.

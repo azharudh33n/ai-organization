@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: research-report-plan
+expected_outcome: |
+  A plan led by research and benchmarking roles (no UI or mobile hires) that demands primary, triangulated, dated sources, uses a fixed benchmark harness with one primary metric and a baseline, and checks findings independently. No benchmark numbers are presented as findings in a dry run.

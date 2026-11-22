@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: tiny-task-right-sizing
+expected_outcome: |
+  The skill scales down to a tiny task: little or no hiring, at most a couple of short planning artifacts, a concrete change list and a concrete verification step. It does not run the full multi-department ceremony.
