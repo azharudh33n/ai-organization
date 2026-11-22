@@ -17,7 +17,7 @@ This brief is the skill run on itself: Phase 0 of ai-organization, with the skil
 3. Detailed playbooks live in `references/`, one level deep, each linked from `SKILL.md` with a note on when to read it.
 4. On the eval suite, v1's assertion pass rate is higher than v0's, with no case scoring lower.
 5. v1 uses no more tokens than v0 on average across eval runs.
-6. A CI/CD playbook reflects 2026 practice (supply-chain hardening, required checks, preview envs, progressive delivery, DORA), with sources.
+6. A CI/CD playbook reflects current practice (supply-chain hardening, required checks, preview envs, progressive delivery, DORA), with sources.
 7. The repo's own CI passes: validation, markdown lint, link check and workflow lint, with actions pinned to commit SHAs and least-privilege permissions.
 8. A reviewer who didn't write v1 checks it against this list before publishing.
 
